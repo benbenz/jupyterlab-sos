@@ -2,3 +2,7 @@
 lib/
 node_modules/
 *.egg-info/
+labextension
+package-lock.json
+tsconfig.tsbuildinfo
+
