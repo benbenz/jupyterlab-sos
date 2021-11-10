@@ -9,7 +9,7 @@ import {
 
 import { CodeMirrorEditor } from "@jupyterlab/codemirror";
 
-import { NotebookInfo } from "./manager";
+import { WidgetInfo } from "./manager";
 
 import { Manager, safe_css_name } from "./manager";
 
@@ -100,7 +100,7 @@ export function toggleCellKernel(cell: Cell, panel: NotebookPanel) {
     // index of kernel
     for (let i = 0; i < kernels.length; ++i) {
       if (kernels[i][0] === kernel) {
-        let info: NotebookInfo = Manager.manager.get_info(panel);
+        let info: WidgetInfo = Manager.manager.get_info(panel);
         let next = (i + 1) % kernels.length;
         // notebook_1.NotebookActions.changeCellType(panel.content, 'markdown');
         changeCellKernel(cell, kernels[next][0], info);
@@ -154,7 +154,7 @@ function add_tag(cell, tag) {
   }
 }
 
-export function addLanSelector(cell: Cell, info: NotebookInfo) {
+export function addLanSelector(cell: Cell, info: WidgetInfo) {
   if (!cell.model.metadata.has("kernel")) {
     cell.model.metadata.set("kernel", "SoS");
   }
@@ -219,7 +219,7 @@ export function addLanSelector(cell: Cell, info: NotebookInfo) {
 export function changeCellKernel(
   cell: Cell,
   kernel: string,
-  info: NotebookInfo
+  info: WidgetInfo
 ) {
   cell.model.metadata.set("kernel", kernel);
   let nodes = cell.node.getElementsByClassName(
@@ -236,7 +236,7 @@ export function changeCellKernel(
 export function changeStyleOnKernel(
   cell: Cell,
   kernel: string,
-  info: NotebookInfo
+  info: WidgetInfo
 ) {
   // Note: JupyterLab does not yet support tags
   if (
@@ -288,7 +288,7 @@ export function changeStyleOnKernel(
 
 export function updateCellStyles(
   panel: NotebookPanel,
-  info: NotebookInfo
+  info: WidgetInfo
 ): Array<string> {
   var cells = panel.content.widgets;
 

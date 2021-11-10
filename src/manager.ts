@@ -7,15 +7,8 @@ import { CommandRegistry } from "@lumino/commands";
 import { ISettingRegistry } from '@jupyterlab/settingregistry';
 
 import { Kernel } from "@jupyterlab/services";
-
-import { PageConfig } from '@jupyterlab/coreutils';
-import { Widget } from '@lumino/widgets';
-import { DocumentManager } from '@jupyterlab/docmanager';
-import { DocumentRegistry } from '@jupyterlab/docregistry';
-import { ServiceManager } from '@jupyterlab/services';
 //
-export class NotebookInfo {
-  notebook: NotebookPanel;
+export class WidgetInfo {
   KernelList: Array<string>;
 
   sos_comm: Kernel.IComm;
@@ -31,8 +24,7 @@ export class NotebookInfo {
   pendingCells: Map<any, any>;
   /** create an info object from metadata of the notebook
    */
-  constructor(notebook: NotebookPanel) {
-    this.notebook = notebook;
+  constructor() {
     this.KernelList = new Array<string>();
     this.autoResume = false;
     this.sos_comm = null;
@@ -46,9 +38,10 @@ export class NotebookInfo {
 
     this.pendingCells = new Map<any, any>();
 
+    
     let data = [["SoS", "sos", "", ""]];
-    if (notebook.model.metadata.has("sos"))
-      data = (notebook.model.metadata.get("sos") as any)["kernels"];
+    // if (notebook.model.metadata.has("sos"))
+    //   data = (notebook.model.metadata.get("sos") as any)["kernels"];
     // fill the look up tables with language list passed from the kernel
     for (let i = 0; i < data.length; i++) {
       // BackgroundColor is color
@@ -154,12 +147,16 @@ export class Manager {
   private static _notebook_tracker: INotebookTracker;
   private static _console_tracker: IConsoleTracker;
   private static _commands: CommandRegistry;
-  private _info: Map<NotebookPanel, NotebookInfo>;
+  private _info: Map<NotebookPanel, WidgetInfo>;
+  private _info_console: Map<ConsolePanel, WidgetInfo>;
   private _settings: ISettingRegistry.ISettings;
 
   private constructor() {
     if (!this._info) {
-      this._info = new Map<NotebookPanel, NotebookInfo>();
+      this._info = new Map<NotebookPanel, WidgetInfo>();
+    }
+    if (!this._info_console) {
+      this._info_console = new Map<ConsolePanel, WidgetInfo>();
     }
   }
 
@@ -173,56 +170,6 @@ export class Manager {
 
   public static set_commands(commands: CommandRegistry) {
     this._commands = commands;
-  }
-
-  public static createDefaultNotebook(): NotebookPanel {
-    if(this.currentNotebook)
-      return this.currentNotebook ;
-    /*
-    //const mFactory = new NotebookModelFactory({});
-    const rendermime = new RenderMimeRegistry({
-      initialFactories: initialFactories,
-      latexTypesetter: null
-    });    
-    const editorFactory = editorServices.factoryService.newInlineEditor;
-    const contentFactory = new NotebookPanel.ContentFactory({ editorFactory });    
-    const wFactory = new NotebookWidgetFactory({
-        name: 'Notebook',
-        modelName: 'notebook',
-        fileTypes: ['notebook'],
-        defaultFor: ['notebook'],
-        preferKernel: true,
-        canStartKernel: true,
-        rendermime,
-        contentFactory,
-        mimeTypeService: editorServices.mimeTypeService
-      });      
-      const nbWidget = wFactory.createNew() as NotebookPanel;
-      */
-    /*
-    const nb = new StaticNotebook({
-    const nb = NotebookPanel.defaultContentFactory.createNotebook({
-      rendermime: new RenderMimeRegistry() ,
-      languagePreference: "SoS",
-      contentFactory: NotebookPanel.defaultContentFactory,
-      mimeTypeService: editorServices.mimeTypeService
-    }) ;
-    nb.setHidden(true) ;
-    return nb ; */
-    const opener = {
-      open: (widget: Widget) => {
-        // Do nothing for sibling widgets for now.
-      }
-    };    
-    const docRegistry = new DocumentRegistry();
-    const docManager = new DocumentManager({
-      registry: docRegistry,
-      manager: new ServiceManager(),
-      opener
-    });    
-    const notebookPath = PageConfig.getOption('notebookPath');
-    const nbWidget = docManager.open(notebookPath) as NotebookPanel;   
-    return nbWidget; 
   }
 
   static get currentNotebook() {
@@ -250,13 +197,22 @@ export class Manager {
   }
 
   // register notebook info to the global registry
-  public get_info(notebook: NotebookPanel): NotebookInfo {
+  public get_info(notebook: NotebookPanel): WidgetInfo {
     if (!this._info.has(notebook)) {
       console.log("Creating a new notebook info");
-      this._info.set(notebook, new NotebookInfo(notebook));
+      this._info.set(notebook, new WidgetInfo());
     }
     return this._info.get(notebook);
   }
+
+  // register notebook info to the global registry
+  public get_info_console(cmdconsole: ConsolePanel): WidgetInfo {
+    if (!this._info_console.has(cmdconsole)) {
+      console.log("Creating a new console info");
+      this._info_console.set(cmdconsole, new WidgetInfo());
+    }
+    return this._info_console.get(cmdconsole);
+  }  
 
   public register_comm(comm: Kernel.IComm, notebook: NotebookPanel) {
     this.get_info(notebook).sos_comm = comm;

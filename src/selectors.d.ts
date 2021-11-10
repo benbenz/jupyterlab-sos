@@ -1,0 +1,12 @@
+import { NotebookPanel } from "@jupyterlab/notebook";
+import { Cell } from "@jupyterlab/cells";
+import { WidgetInfo } from "./manager";
+export declare function saveKernelInfo(): void;
+export declare function hideLanSelector(cell: any): void;
+export declare function toggleDisplayOutput(cell: any): void;
+export declare function toggleCellKernel(cell: Cell, panel: NotebookPanel): void;
+export declare function toggleMarkdownCell(cell: Cell, panel: NotebookPanel): void;
+export declare function addLanSelector(cell: Cell, info: WidgetInfo): void;
+export declare function changeCellKernel(cell: Cell, kernel: string, info: WidgetInfo): void;
+export declare function changeStyleOnKernel(cell: Cell, kernel: string, info: WidgetInfo): void;
+export declare function updateCellStyles(panel: NotebookPanel, info: WidgetInfo): Array<string>;
